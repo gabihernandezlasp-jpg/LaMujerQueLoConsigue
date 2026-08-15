@@ -62,7 +62,7 @@ export default function Hero() {
         </div>
 
         {(hasSocialProof || hasCoachPhoto) && (
-          <div className="order-first mx-auto flex w-40 flex-col gap-3 sm:w-56 lg:order-last lg:mx-0 lg:w-full">
+          <div className="order-first mx-auto flex w-full max-w-xs flex-col gap-3 sm:max-w-sm lg:order-last lg:mx-0 lg:w-full lg:max-w-none">
             {hasSocialProof && (
               <div className="relative aspect-[1000/392] w-full overflow-hidden rounded-2xl bg-white shadow-soft">
                 <Image
@@ -70,19 +70,19 @@ export default function Hero() {
                   alt="Perfil de Instagram de Paty Valero, mentora de autoestima, con más de 450 mil seguidores"
                   fill
                   priority
-                  sizes="(min-width: 1024px) 420px, 224px"
+                  sizes="(min-width: 1024px) 420px, 380px"
                   className="object-contain"
                 />
               </div>
             )}
             {hasCoachPhoto && (
-              <div className="relative aspect-[7/6] w-full overflow-hidden rounded-3xl shadow-soft">
+              <div className="relative hidden aspect-[7/6] w-full overflow-hidden rounded-3xl shadow-soft lg:block">
                 <Image
                   src="/images/hero-coach.jpg"
                   alt="Paty, mentora del retiro La Mujer Que Lo Consigue"
                   fill
                   priority
-                  sizes="(min-width: 1024px) 420px, 224px"
+                  sizes="420px"
                   className="object-cover"
                 />
               </div>

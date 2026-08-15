@@ -38,14 +38,17 @@ export default function DifferentialAngle() {
           verte de verdad.
         </p>
 
-        <div className="mt-12 flex flex-wrap justify-center gap-8 sm:gap-10">
+        <div className="-mx-4 mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 sm:snap-none">
           {FEATURES.map((item) => (
-            <div key={item.title} className="flex flex-col items-center">
-              <div className="relative flex aspect-square w-48 flex-col items-center justify-center rounded-full bg-gradient-to-br from-terracotta-500 to-gold-700 p-6 text-center shadow-soft sm:w-56">
+            <div
+              key={item.title}
+              className="flex shrink-0 snap-center flex-col items-center sm:shrink"
+            >
+              <div className="relative flex aspect-square w-56 flex-col items-center justify-center rounded-full bg-gradient-to-br from-terracotta-500 to-gold-700 p-6 text-center shadow-soft">
                 <h3 className="font-serif text-lg font-semibold text-cream">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-xs leading-snug text-cream/90">
+                <p className="mt-2 max-w-[80%] text-[11px] leading-snug text-cream/90">
                   {item.text}
                 </p>
               </div>
