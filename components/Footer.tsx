@@ -27,13 +27,6 @@ export default function Footer() {
         <p className="mt-2 text-sm">
           Retiro virtual · 2-4 de octubre de 2026
         </p>
-        <p className="mt-4 text-xs text-cream/60">
-          Contacto:{" "}
-          <a href="mailto:hola@coachingconpaty.com" className="underline">
-            hola@coachingconpaty.com
-          </a>{" "}
-          (placeholder)
-        </p>
         <p className="mx-auto mt-4 max-w-xl text-[11px] leading-relaxed text-cream/50">
           Al inscribirte aceptas nuestros términos y condiciones y política
           de privacidad. Este programa no sustituye tratamiento psicológico
