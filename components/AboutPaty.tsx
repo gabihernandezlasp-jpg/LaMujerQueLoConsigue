@@ -1,5 +1,6 @@
-import Image from "next/image";
-import { publicImageExists } from "@/lib/publicImage";
+"use client";
+
+import { useRef, useState } from "react";
 
 const SOCIALS = [
   {
@@ -19,49 +20,53 @@ const SOCIALS = [
   },
 ];
 
-const PHOTOS = [
-  {
-    src: "images/paty-portrait-1.jpg",
-    alt: "Paty Valero, mentora y coach",
-  },
-  {
-    src: "images/paty-portrait-4.jpg",
-    alt: "Paty Valero hablando en un evento en directo",
-  },
-  {
-    src: "images/paty-portrait-2.jpg",
-    alt: "Paty Valero acompañando una meditación grupal en directo",
-  },
-  {
-    src: "images/footer-ambient.jpg",
-    alt: "Paty Valero en un momento de conexión y meditación",
-  },
-];
-
 export default function AboutPaty() {
-  const photos = PHOTOS.filter((p) => publicImageExists(p.src));
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleFrameClick = () => {
+    if (!isPlaying) {
+      videoRef.current?.play();
+    }
+  };
 
   return (
     <section className="bg-sand-100 px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
-        {photos.length > 0 && (
-          <div className="mx-auto grid w-full max-w-sm grid-cols-2 gap-4 lg:mx-0">
-            {photos.map((photo) => (
-              <div
-                key={photo.src}
-                className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-soft"
-              >
-                <Image
-                  src={`/${photo.src}`}
-                  alt={photo.alt}
-                  fill
-                  sizes="(min-width: 1024px) 250px, 200px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
+        <div
+          className={`mx-auto transition-all duration-500 ease-in-out lg:mx-0 ${
+            isPlaying ? "w-full max-w-sm lg:h-full" : "h-80 w-80"
+          }`}
+        >
+          <div
+            onClick={handleFrameClick}
+            className={`relative w-full overflow-hidden shadow-soft transition-all duration-500 ease-in-out ${
+              isPlaying
+                ? "aspect-[9/16] rounded-2xl lg:aspect-auto lg:h-full"
+                : "h-full cursor-pointer rounded-full"
+            }`}
+          >
+            <video
+              ref={videoRef}
+              controls={isPlaying}
+              preload="none"
+              poster="/images/sobre-paty-poster.jpg"
+              className="h-full w-full object-cover"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+            >
+              <source src="/videos/sobre-paty.mp4" type="video/mp4" />
+            </video>
+            {!isPlaying && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-lg text-espresso shadow">
+                  ▶️
+                </span>
+              </span>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="text-center lg:text-left">
           <p className="section-label">Sobre Paty</p>
