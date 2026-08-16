@@ -64,6 +64,9 @@ async function syncBrevoContact(
     return;
   }
 
+  // Todo el que paga entra en la lista, haya marcado el checkbox o no;
+  // el consentimiento de marketing se registra como atributo del
+  // contacto, no como pertenencia a la lista.
   const body: Record<string, unknown> = {
     email,
     attributes: {
@@ -72,13 +75,11 @@ async function syncBrevoContact(
       DESEO_PRINCIPAL: metadata.deseo,
       EXPECTATIVA: metadata.expectativa,
       FECHA_COMPRA: new Date().toISOString(),
+      CONSENTIMIENTO_MARKETING: metadata.marketing_consent === "true",
     },
     updateEnabled: true,
+    listIds: [Number(process.env.BREVO_LIST_ID_MARKETING)],
   };
-
-  if (metadata.marketing_consent === "true") {
-    body.listIds = [Number(process.env.BREVO_LIST_ID_MARKETING)];
-  }
 
   try {
     const response = await fetch("https://api.brevo.com/v3/contacts", {
@@ -92,6 +93,20 @@ async function syncBrevoContact(
 
     if (!response.ok) {
       const errorBody = await response.text();
+
+      // Brevo exige que WHATSAPP sea único entre contactos. Si ya está
+      // asociado a otro contacto (número compartido, error de tecleo,
+      // etc.), no queremos perder el resto de la sincronización: se
+      // reintenta sin ese campo para que el contacto se cree igualmente.
+      if (isWhatsappDuplicateError(response.status, errorBody)) {
+        console.warn(
+          "[webhook->brevo] WHATSAPP ya asociado a otro contacto, reintentando sin ese campo:",
+          { contact: body }
+        );
+        await syncBrevoContactWithoutWhatsapp(apiKey, body);
+        return;
+      }
+
       console.error("[webhook->brevo] Fallo al sincronizar el contacto:", {
         status: response.status,
         errorBody,
@@ -102,6 +117,50 @@ async function syncBrevoContact(
     console.error("[webhook->brevo] Error al llamar a la API de Brevo:", {
       error: err instanceof Error ? err.message : err,
       contact: body,
+    });
+  }
+}
+
+function isWhatsappDuplicateError(status: number, errorBody: string): boolean {
+  if (status !== 400) return false;
+
+  try {
+    const parsed = JSON.parse(errorBody) as {
+      code?: string;
+      metadata?: { duplicate_identifiers?: string[] };
+    };
+    return (
+      parsed.code === "duplicate_parameter" &&
+      Boolean(parsed.metadata?.duplicate_identifiers?.includes("WHATSAPP"))
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function syncBrevoContactWithoutWhatsapp(
+  apiKey: string,
+  body: Record<string, unknown>
+) {
+  const attributes = { ...(body.attributes as Record<string, unknown>) };
+  delete attributes.WHATSAPP;
+  const retryBody = { ...body, attributes };
+
+  const response = await fetch("https://api.brevo.com/v3/contacts", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(retryBody),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("[webhook->brevo] Fallo al reintentar sin WHATSAPP:", {
+      status: response.status,
+      errorBody,
+      contact: retryBody,
     });
   }
 }

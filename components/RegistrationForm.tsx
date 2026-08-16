@@ -29,6 +29,10 @@ const INITIAL_STATE: FormState = {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+]?[\d\s()-]{7,20}$/;
 
+// Distingue los errores conocidos del backend (mensaje seguro para
+// mostrar tal cual) de fallos de red inesperados.
+class CheckoutError extends Error {}
+
 function validate(values: FormState): FormErrors {
   const errors: FormErrors = {};
 
@@ -106,7 +110,10 @@ export default function RegistrationForm() {
       });
 
       if (!checkoutRes.ok) {
-        throw new Error("No se pudo crear la sesión de pago.");
+        const data = (await checkoutRes.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new CheckoutError(data?.error ?? "No se pudo crear la sesión de pago.");
       }
 
       const data = (await checkoutRes.json()) as { url?: string };
@@ -117,7 +124,9 @@ export default function RegistrationForm() {
       window.location.href = data.url;
     } catch (err) {
       setSubmitError(
-        "Algo ha fallado al procesar tu inscripción. Inténtalo de nuevo en unos segundos."
+        err instanceof CheckoutError
+          ? err.message
+          : "Algo ha fallado al procesar tu inscripción. Inténtalo de nuevo en unos segundos."
       );
       setSubmitting(false);
     }
