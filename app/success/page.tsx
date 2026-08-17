@@ -55,6 +55,10 @@ export default async function SuccessPage({
               </a>{" "}
               y pronto recibirás más información.
             </p>
+            <p className="mt-4 text-sm text-espresso/70">
+              En breve recibirás un email de confirmación. Si no lo ves,
+              revisa también tu carpeta de spam.
+            </p>
           </>
         )}
 
