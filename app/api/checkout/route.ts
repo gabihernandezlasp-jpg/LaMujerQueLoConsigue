@@ -22,7 +22,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (await hasCompletedPurchase(email)) {
+  const matchingSession = await findCompletedPurchase(email);
+  if (matchingSession) {
+    console.warn("[checkout] Bloqueado por inscripción duplicada:", {
+      emailIntroducido: email,
+      sessionId: matchingSession.id,
+      sessionEmail: matchingSession.customer_details?.email,
+      sessionCreated: new Date(matchingSession.created * 1000).toISOString(),
+      sessionLivemode: matchingSession.livemode,
+      sessionPaymentStatus: matchingSession.payment_status,
+    });
     return NextResponse.json(
       {
         error:
@@ -76,14 +85,14 @@ export async function POST(request: NextRequest) {
 // pagar, etc.). No hay base de datos propia, así que se apoya en el
 // historial de Stripe; cubre el caso realista para el volumen de este
 // evento.
-async function hasCompletedPurchase(email: string): Promise<boolean> {
+async function findCompletedPurchase(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
   const sessions = await getStripe().checkout.sessions.list({
     status: "complete",
     limit: 100,
   });
 
-  return sessions.data.some(
+  return sessions.data.find(
     (session) =>
       session.customer_details?.email?.trim().toLowerCase() === normalizedEmail
   );
