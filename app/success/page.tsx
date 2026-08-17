@@ -10,7 +10,6 @@ export default async function SuccessPage({
 }) {
   const sessionId = searchParams.session_id;
 
-  let email: string | null = null;
   let error: string | null = null;
 
   if (!sessionId) {
@@ -18,7 +17,6 @@ export default async function SuccessPage({
   } else {
     try {
       const session = await getStripe().checkout.sessions.retrieve(sessionId);
-      email = session.customer_email ?? session.customer_details?.email ?? null;
       if (session.payment_status !== "paid") {
         error = "Tu pago aún no se ha confirmado. Si crees que es un error, contáctanos.";
       }
@@ -45,19 +43,17 @@ export default async function SuccessPage({
               ¡Tu plaza está reservada!
             </h1>
             <p className="mt-3 text-espresso/80">
-              Gracias por inscribirte en "La Mujer Que Lo Consigue".
-              {email && (
-                <>
-                  {" "}
-                  Hemos registrado tu pago con el email{" "}
-                  <span className="font-semibold">{email}</span>.
-                </>
-              )}
-            </p>
-            <p className="mt-4 text-sm text-espresso/70">
-              En breve recibirás la confirmación y los próximos pasos por
-              email y por WhatsApp. Si no la ves, revisa también tu carpeta
-              de spam.
+              ¡Bienvenida! Nos vemos del 2 al 4 de Octubre para transformar
+              tu vida. Únete a nuestra comunidad de WhatsApp{" "}
+              <a
+                href="https://chat.whatsapp.com/DeJVLzHx1wUHsWrbAM5Afd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline hover:text-terracotta-600"
+              >
+                aquí
+              </a>{" "}
+              y pronto recibirás más información.
             </p>
           </>
         )}
