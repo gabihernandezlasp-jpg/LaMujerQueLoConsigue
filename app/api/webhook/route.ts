@@ -71,7 +71,7 @@ async function syncBrevoContact(
     email,
     attributes: {
       NOMBRE: metadata.nombre,
-      WHATSAPP: metadata.whatsapp,
+      WHATSAPP: normalizeWhatsapp(metadata.whatsapp),
       DESEO_PRINCIPAL: metadata.deseo,
       EXPECTATIVA: metadata.expectativa,
       FECHA_COMPRA: new Date().toISOString(),
@@ -120,6 +120,18 @@ async function syncBrevoContact(
       contact: body,
     });
   }
+}
+
+// Brevo exige el número en formato internacional (con prefijo de
+// país). El formulario no obliga a escribirlo, así que si la usuaria
+// no lo incluyó, asumimos España (+34) en vez de bloquear el registro.
+function normalizeWhatsapp(whatsapp: string | undefined): string | undefined {
+  if (!whatsapp) return whatsapp;
+
+  const digitsOnly = whatsapp.replace(/[^\d+]/g, "");
+  if (digitsOnly.startsWith("+")) return digitsOnly;
+
+  return `+34${digitsOnly}`;
 }
 
 function isWhatsappAttributeError(status: number, errorBody: string): boolean {
