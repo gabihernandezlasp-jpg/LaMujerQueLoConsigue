@@ -94,14 +94,15 @@ async function syncBrevoContact(
     if (!response.ok) {
       const errorBody = await response.text();
 
-      // Brevo exige que WHATSAPP sea único entre contactos. Si ya está
-      // asociado a otro contacto (número compartido, error de tecleo,
-      // etc.), no queremos perder el resto de la sincronización: se
-      // reintenta sin ese campo para que el contacto se cree igualmente.
-      if (isWhatsappDuplicateError(response.status, errorBody)) {
+      // Brevo puede rechazar el campo WHATSAPP por estar ya asociado a
+      // otro contacto o por no tener un formato válido (falta el
+      // prefijo de país, etc.). En ambos casos no queremos perder el
+      // resto de la sincronización: se reintenta sin ese campo para que
+      // el contacto se cree igualmente.
+      if (isWhatsappAttributeError(response.status, errorBody)) {
         console.warn(
-          "[webhook->brevo] WHATSAPP ya asociado a otro contacto, reintentando sin ese campo:",
-          { contact: body }
+          "[webhook->brevo] WHATSAPP inválido o duplicado, reintentando sin ese campo:",
+          { errorBody, contact: body }
         );
         await syncBrevoContactWithoutWhatsapp(apiKey, body);
         return;
@@ -121,18 +122,25 @@ async function syncBrevoContact(
   }
 }
 
-function isWhatsappDuplicateError(status: number, errorBody: string): boolean {
+function isWhatsappAttributeError(status: number, errorBody: string): boolean {
   if (status !== 400) return false;
 
   try {
     const parsed = JSON.parse(errorBody) as {
       code?: string;
+      message?: string;
       metadata?: { duplicate_identifiers?: string[] };
     };
-    return (
+
+    const isDuplicate =
       parsed.code === "duplicate_parameter" &&
-      Boolean(parsed.metadata?.duplicate_identifiers?.includes("WHATSAPP"))
-    );
+      Boolean(parsed.metadata?.duplicate_identifiers?.includes("WHATSAPP"));
+
+    const isInvalidFormat =
+      parsed.code === "invalid_parameter" &&
+      Boolean(parsed.message?.toLowerCase().includes("whatsapp"));
+
+    return isDuplicate || isInvalidFormat;
   } catch {
     return false;
   }
