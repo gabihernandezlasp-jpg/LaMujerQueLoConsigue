@@ -22,25 +22,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const matchingSession = await findCompletedPurchase(email);
-  if (matchingSession) {
-    console.warn("[checkout] Bloqueado por inscripción duplicada:", {
-      emailIntroducido: email,
-      sessionId: matchingSession.id,
-      sessionEmail: matchingSession.customer_details?.email,
-      sessionCreated: new Date(matchingSession.created * 1000).toISOString(),
-      sessionLivemode: matchingSession.livemode,
-      sessionPaymentStatus: matchingSession.payment_status,
-    });
-    return NextResponse.json(
-      {
-        error:
-          "Ya existe una inscripción pagada con este email. Si crees que es un error, contáctanos.",
-      },
-      { status: 409 }
-    );
-  }
-
   // El precio se calcula siempre en el servidor: nunca confiamos en lo
   // que pueda enviar el cliente.
   const tier = getPriceTier();
@@ -78,22 +59,4 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ url: session.url });
-}
-
-// Comprueba las sesiones completadas recientes en Stripe para evitar que
-// alguien pague dos veces por accidente (doble envío, volver atrás tras
-// pagar, etc.). No hay base de datos propia, así que se apoya en el
-// historial de Stripe; cubre el caso realista para el volumen de este
-// evento.
-async function findCompletedPurchase(email: string) {
-  const normalizedEmail = email.trim().toLowerCase();
-  const sessions = await getStripe().checkout.sessions.list({
-    status: "complete",
-    limit: 100,
-  });
-
-  return sessions.data.find(
-    (session) =>
-      session.customer_details?.email?.trim().toLowerCase() === normalizedEmail
-  );
 }
