@@ -7,6 +7,7 @@ import { DESEO_OPCIONES, type RegistrationPayload } from "@/lib/types";
 type FormState = {
   nombre: string;
   email: string;
+  countryCode: string;
   whatsapp: string;
   deseoOpcion: string;
   deseoOtro: string;
@@ -19,6 +20,7 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 const INITIAL_STATE: FormState = {
   nombre: "",
   email: "",
+  countryCode: "",
   whatsapp: "",
   deseoOpcion: "",
   deseoOtro: "",
@@ -26,8 +28,59 @@ const INITIAL_STATE: FormState = {
   marketingConsent: false,
 };
 
+const COUNTRY_CODES = [
+  { code: "+34", country: "España" },
+  { code: "+52", country: "México" },
+  { code: "+54", country: "Argentina" },
+  { code: "+57", country: "Colombia" },
+  { code: "+56", country: "Chile" },
+  { code: "+51", country: "Perú" },
+  { code: "+58", country: "Venezuela" },
+  { code: "+593", country: "Ecuador" },
+  { code: "+502", country: "Guatemala" },
+  { code: "+53", country: "Cuba" },
+  { code: "+591", country: "Bolivia" },
+  { code: "+1", country: "Estados Unidos" },
+  { code: "+1", country: "Puerto Rico" },
+  { code: "+1", country: "República Dominicana" },
+  { code: "+504", country: "Honduras" },
+  { code: "+595", country: "Paraguay" },
+  { code: "+503", country: "El Salvador" },
+  { code: "+505", country: "Nicaragua" },
+  { code: "+506", country: "Costa Rica" },
+  { code: "+507", country: "Panamá" },
+  { code: "+598", country: "Uruguay" },
+  { code: "+44", country: "Reino Unido" },
+  { code: "+49", country: "Alemania" },
+  { code: "+33", country: "Francia" },
+  { code: "+39", country: "Italia" },
+  { code: "+351", country: "Portugal" },
+  { code: "+31", country: "Países Bajos" },
+  { code: "+32", country: "Bélgica" },
+  { code: "+43", country: "Austria" },
+  { code: "+30", country: "Grecia" },
+  { code: "+353", country: "Irlanda" },
+  { code: "+45", country: "Dinamarca" },
+  { code: "+46", country: "Suecia" },
+  { code: "+358", country: "Finlandia" },
+  { code: "+48", country: "Polonia" },
+  { code: "+420", country: "República Checa" },
+  { code: "+421", country: "Eslovaquia" },
+  { code: "+36", country: "Hungría" },
+  { code: "+40", country: "Rumanía" },
+  { code: "+359", country: "Bulgaria" },
+  { code: "+385", country: "Croacia" },
+  { code: "+386", country: "Eslovenia" },
+  { code: "+372", country: "Estonia" },
+  { code: "+371", country: "Letonia" },
+  { code: "+370", country: "Lituania" },
+  { code: "+352", country: "Luxemburgo" },
+  { code: "+356", country: "Malta" },
+  { code: "+357", country: "Chipre" },
+];
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[+]?[\d\s()-]{7,20}$/;
+const PHONE_REGEX = /^[\d\s()-]{6,15}$/;
 
 // Distingue los errores conocidos del backend (mensaje seguro para
 // mostrar tal cual) de fallos de red inesperados.
@@ -44,10 +97,14 @@ function validate(values: FormState): FormErrors {
     errors.email = "Ese email no parece válido.";
   }
 
+  if (!values.countryCode) {
+    errors.countryCode = "Selecciona tu país.";
+  }
+
   if (!values.whatsapp.trim()) {
     errors.whatsapp = "Escribe tu número de WhatsApp.";
   } else if (!PHONE_REGEX.test(values.whatsapp.trim())) {
-    errors.whatsapp = "Usa un formato de teléfono válido, ej. +34 600 000 000.";
+    errors.whatsapp = "Usa un formato de teléfono válido, ej. 600 000 000.";
   }
 
   if (!values.deseoOpcion) {
@@ -89,7 +146,7 @@ export default function RegistrationForm() {
     const payload: RegistrationPayload = {
       nombre: values.nombre,
       email: values.email,
-      whatsapp: values.whatsapp,
+      whatsapp: `${values.countryCode}${values.whatsapp.replace(/[^\d]/g, "")}`,
       deseo,
       expectativa: values.expectativa,
       marketingConsent: values.marketingConsent,
@@ -141,6 +198,7 @@ export default function RegistrationForm() {
         <input
           id="nombre"
           type="text"
+          required
           className="input-field"
           value={values.nombre}
           onChange={(e) => handleChange("nombre", e.target.value)}
@@ -155,6 +213,7 @@ export default function RegistrationForm() {
         <input
           id="email"
           type="email"
+          required
           className="input-field"
           value={values.email}
           onChange={(e) => handleChange("email", e.target.value)}
@@ -166,14 +225,37 @@ export default function RegistrationForm() {
         <label htmlFor="whatsapp" className="mb-1 block text-sm font-medium text-espresso">
           WhatsApp *
         </label>
-        <input
-          id="whatsapp"
-          type="tel"
-          placeholder="+34 600 000 000"
-          className="input-field"
-          value={values.whatsapp}
-          onChange={(e) => handleChange("whatsapp", e.target.value)}
-        />
+        <div className="flex gap-2">
+          <select
+            id="countryCode"
+            aria-label="País *"
+            required
+            className="input-field w-[40%] shrink-0"
+            value={values.countryCode}
+            onChange={(e) => handleChange("countryCode", e.target.value)}
+          >
+            <option value="" disabled>
+              Selecciona tu país
+            </option>
+            {COUNTRY_CODES.map(({ code, country }) => (
+              <option key={country} value={code}>
+                {country} ({code})
+              </option>
+            ))}
+          </select>
+          <input
+            id="whatsapp"
+            type="tel"
+            placeholder="600 000 000"
+            required
+            className="input-field"
+            value={values.whatsapp}
+            onChange={(e) => handleChange("whatsapp", e.target.value)}
+          />
+        </div>
+        {errors.countryCode && (
+          <p className="mt-1 text-xs text-terracotta-700">{errors.countryCode}</p>
+        )}
         {errors.whatsapp && <p className="mt-1 text-xs text-terracotta-700">{errors.whatsapp}</p>}
       </div>
 
@@ -183,6 +265,7 @@ export default function RegistrationForm() {
         </label>
         <select
           id="deseoOpcion"
+          required
           className="input-field"
           value={values.deseoOpcion}
           onChange={(e) => handleChange("deseoOpcion", e.target.value)}
@@ -224,6 +307,7 @@ export default function RegistrationForm() {
         <textarea
           id="expectativa"
           rows={4}
+          required
           className="input-field"
           value={values.expectativa}
           onChange={(e) => handleChange("expectativa", e.target.value)}
