@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
+import { PRODUCT_ID } from "@/lib/pricing";
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -27,8 +28,32 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    // Los pagos en modo test (tarjetas de prueba) también disparan este
+    // evento y no deben crear contactos reales en Brevo: se descartan
+    // aquí antes de tocar nada más.
+    if (!event.livemode) {
+      console.warn("[webhook] Evento en modo test ignorado:", {
+        session_id: session.id,
+        email: session.customer_email ?? session.customer_details?.email,
+      });
+      return NextResponse.json({ received: true, skipped: "test-mode event" });
+    }
+
     const metadata = session.metadata ?? {};
     const email = session.customer_email ?? session.customer_details?.email;
+
+    // La misma cuenta de Stripe cobra otros productos/servicios: sin
+    // esta comprobación, cualquier compra ajena al retiro también
+    // dispararía la sincronización con esta lista de Brevo.
+    if (metadata.product !== PRODUCT_ID) {
+      console.log("[webhook] Sesión de otro producto ignorada:", {
+        session_id: session.id,
+        product: metadata.product,
+        email,
+      });
+      return NextResponse.json({ received: true, skipped: "other product" });
+    }
 
     // TODO: aquí se conectará el envío de email de confirmación y WhatsApp.
     console.log("[webhook] Inscripción completada:", {

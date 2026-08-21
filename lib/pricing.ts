@@ -13,6 +13,11 @@ export const EARLY_BIRD_DEADLINE_UTC = "2026-09-15T22:00:00Z";
 export const EARLY_BIRD_PRICE_CENTS = 4700;
 export const REGULAR_PRICE_CENTS = 5700;
 
+// Identifica las sesiones de Stripe Checkout creadas por este retiro,
+// para distinguirlas de otros productos/servicios que se cobran en la
+// misma cuenta de Stripe (y que no deben acabar en esta lista de Brevo).
+export const PRODUCT_ID = "retiro_2026_10";
+
 export type PriceTier = "early_bird" | "regular";
 
 export function getPriceTier(now: Date = new Date()): PriceTier {

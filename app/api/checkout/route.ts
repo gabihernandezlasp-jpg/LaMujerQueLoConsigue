@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-import { getPriceCents, getPriceTier, getPriceLabel } from "@/lib/pricing";
+import { getPriceCents, getPriceTier, getPriceLabel, PRODUCT_ID } from "@/lib/pricing";
 import type { RegistrationPayload } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       },
     ],
     metadata: {
+      product: PRODUCT_ID,
       nombre,
       whatsapp,
       deseo,
