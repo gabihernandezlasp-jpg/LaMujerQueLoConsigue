@@ -55,6 +55,13 @@ export async function POST(request: NextRequest) {
       marketing_consent: String(marketingConsent === true),
       price_tier: tier,
     },
+    invoice_creation: {
+      enabled: true,
+      invoice_data: {
+        description: `La Mujer Que Lo Consigue — Entrada ${label}`,
+        metadata: { product: PRODUCT_ID },
+      },
+    },
     success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${siteUrl}/#inscripcion`,
   });
