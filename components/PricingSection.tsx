@@ -39,6 +39,10 @@ export default function PricingSection() {
                 El precio sube a <strong>57€</strong> a partir del 16 de
                 septiembre
               </p>
+              <p className="mt-2 text-sm font-semibold text-espresso/80">
+                Precio único y completo del retiro — no hay pagos
+                adicionales.
+              </p>
 
               <div className="mt-5 border-t border-terracotta/20 pt-5">
                 <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-terracotta-700">

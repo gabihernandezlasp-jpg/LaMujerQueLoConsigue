@@ -49,7 +49,11 @@ export default function Hero() {
             Reservar mi plaza por 47 €
           </a>
 
-          <p className="mt-3 text-xs text-espresso/60">
+          <p className="mt-3 text-sm font-semibold text-terracotta-600">
+            Precio único y completo del retiro
+          </p>
+
+          <p className="mt-1 text-xs text-espresso/60">
             Precio early bird disponible hasta el 15 de septiembre.
           </p>
 

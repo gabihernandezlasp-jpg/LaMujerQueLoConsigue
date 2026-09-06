@@ -55,6 +55,10 @@ const FAQS = [
     q: "¿Hasta cuándo está disponible el precio early bird?",
     a: "El precio early bird de 47 € estará disponible hasta el 15 de septiembre. A partir del 16 de septiembre, el precio será 57 €.",
   },
+  {
+    q: "¿Los 47 € son solo una reserva o el precio completo?",
+    a: "Es el precio completo. Pagando 47 € (early bird) tienes acceso a los 3 días de retiro, el workbook, las meditaciones guiadas y las grabaciones durante 7 días. No hay ningún pago adicional después.",
+  },
 ];
 
 export default function FAQ() {
