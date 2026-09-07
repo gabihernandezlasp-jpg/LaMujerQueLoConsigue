@@ -23,3 +23,8 @@ npm-debug.log*
 next-env.d.ts
 
 .vercel
+
+# customer data exports (contains PII, never commit)
+backfill-preview.csv
+backfill-resultado.csv
+brevo-respuestas.csv
