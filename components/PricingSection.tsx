@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Countdown from "./Countdown";
 import RegistrationForm from "./RegistrationForm";
+import { CurrentPrice, EarlyBirdOnly } from "./PriceTag";
 import { EARLY_BIRD_DEADLINE_UTC } from "@/lib/pricing";
 import { publicImageExists } from "@/lib/publicImage";
 
@@ -23,36 +24,44 @@ export default function PricingSection() {
         <div className="mx-auto mt-10 grid max-w-4xl gap-8 rounded-3xl border border-espresso/10 bg-white/80 p-4 shadow-soft sm:mt-14 sm:p-10 lg:grid-cols-2">
           <div className="flex flex-col justify-between">
             <div className="rounded-2xl border-2 border-terracotta/30 bg-terracotta-50 p-4 sm:p-6">
-              <span className="inline-block rounded-full bg-terracotta px-3 py-1 text-xs font-bold uppercase tracking-wide text-cream">
-                Oferta Early Bird
-              </span>
+              <EarlyBirdOnly>
+                <span className="inline-block rounded-full bg-terracotta px-3 py-1 text-xs font-bold uppercase tracking-wide text-cream">
+                  Oferta Early Bird
+                </span>
+              </EarlyBirdOnly>
 
               <div className="mt-4 flex items-end gap-3">
                 <span className="font-serif text-6xl font-bold text-terracotta-700">
-                  47€
+                  <CurrentPrice />
                 </span>
-                <span className="mb-2 text-2xl font-medium text-espresso/40 line-through">
-                  57€
-                </span>
+                <EarlyBirdOnly>
+                  <span className="mb-2 text-2xl font-medium text-espresso/40 line-through">
+                    57€
+                  </span>
+                </EarlyBirdOnly>
               </div>
-              <p className="mt-1 text-sm text-espresso/70">
-                El precio sube a <strong>57€</strong> a partir del 16 de
-                septiembre
-              </p>
+              <EarlyBirdOnly>
+                <p className="mt-1 text-sm text-espresso/70">
+                  El precio sube a <strong>57€</strong> a partir del 15 de
+                  septiembre
+                </p>
+              </EarlyBirdOnly>
               <p className="mt-2 text-sm font-semibold text-espresso/80">
                 Precio único y completo del retiro — no hay pagos
                 adicionales.
               </p>
 
-              <div className="mt-5 border-t border-terracotta/20 pt-5">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-terracotta-700">
-                  ⏳ Esta tarifa desaparece en:
-                </span>
-                <Countdown
-                  deadline={EARLY_BIRD_DEADLINE_UTC}
-                  expiredMessage="El precio early bird ha finalizado — ahora el retiro cuesta 57€."
-                />
-              </div>
+              <EarlyBirdOnly>
+                <div className="mt-5 border-t border-terracotta/20 pt-5">
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-terracotta-700">
+                    ⏳ Esta tarifa desaparece en:
+                  </span>
+                  <Countdown
+                    deadline={EARLY_BIRD_DEADLINE_UTC}
+                    expiredMessage="El precio early bird ha finalizado — ahora el retiro cuesta 57€."
+                  />
+                </div>
+              </EarlyBirdOnly>
             </div>
 
             <ul className="mt-8 space-y-2 text-sm text-espresso/75">

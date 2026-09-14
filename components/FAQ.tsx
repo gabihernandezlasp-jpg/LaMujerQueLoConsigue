@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePriceTier } from "./PriceTag";
 
 const FAQS = [
   {
@@ -53,16 +54,23 @@ const FAQS = [
   },
   {
     q: "¿Hasta cuándo está disponible el precio early bird?",
-    a: "El precio early bird de 47 € estará disponible hasta el 15 de septiembre. A partir del 16 de septiembre, el precio será 57 €.",
+    a: (tier: "early_bird" | "regular") =>
+      tier === "early_bird"
+        ? "El precio early bird de 47 € está disponible hasta el 14 de septiembre. A partir del 15 de septiembre, el precio será 57 €."
+        : "El precio early bird de 47 € estuvo disponible hasta el 14 de septiembre. El precio actual del retiro es 57 €.",
   },
   {
     q: "¿Los 47 € son solo una reserva o el precio completo?",
-    a: "Es el precio completo. Pagando 47 € (early bird) tienes acceso a los 3 días de retiro, el workbook, las meditaciones guiadas y las grabaciones durante 7 días. No hay ningún pago adicional después.",
+    a: (tier: "early_bird" | "regular") =>
+      tier === "early_bird"
+        ? "Es el precio completo. Pagando 47 € (early bird) tienes acceso a los 3 días de retiro, el workbook, las meditaciones guiadas y las grabaciones durante 7 días. No hay ningún pago adicional después."
+        : "Es el precio completo. Pagando 57 € tienes acceso a los 3 días de retiro, el workbook, las meditaciones guiadas y las grabaciones durante 7 días. No hay ningún pago adicional después.",
   },
 ];
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const tier = usePriceTier() ?? "early_bird";
 
   return (
     <section className="bg-cream px-4 py-16 sm:px-6 sm:py-24">
@@ -99,7 +107,7 @@ export default function FAQ() {
                 </button>
                 {isOpen && (
                   <p className="px-5 pb-5 text-sm text-espresso/75">
-                    {item.a}
+                    {typeof item.a === "function" ? item.a(tier) : item.a}
                   </p>
                 )}
               </div>

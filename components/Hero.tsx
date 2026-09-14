@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Countdown from "./Countdown";
+import { CurrentPrice, EarlyBirdOnly } from "./PriceTag";
 import { EARLY_BIRD_DEADLINE_UTC } from "@/lib/pricing";
 import { publicImageExists } from "@/lib/publicImage";
 
@@ -41,28 +42,34 @@ export default function Hero() {
             </p>
           </div>
 
-          <span className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-terracotta/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-terracotta-700">
-            🔥 Oferta Early Bird activa
-          </span>
+          <EarlyBirdOnly>
+            <span className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-terracotta/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-terracotta-700">
+              🔥 Oferta Early Bird activa
+            </span>
+          </EarlyBirdOnly>
 
           <a href="#inscripcion" className="btn-primary mt-4 w-full sm:w-auto">
-            Reservar mi plaza por 47 €
+            Reservar mi plaza por <CurrentPrice />
           </a>
 
           <p className="mt-3 text-sm font-semibold text-terracotta-600">
             Precio único y completo del retiro
           </p>
 
-          <p className="mt-1 text-xs text-espresso/60">
-            Precio early bird disponible hasta el 15 de septiembre.
-          </p>
+          <EarlyBirdOnly>
+            <p className="mt-1 text-xs text-espresso/60">
+              Precio early bird disponible hasta el 14 de septiembre.
+            </p>
+          </EarlyBirdOnly>
 
-          <div className="mt-8 flex flex-col items-center gap-3 lg:items-start">
-            <span className="text-xs font-semibold uppercase tracking-wide text-espresso/60">
-              ⏳ La oferta Early Bird termina en
-            </span>
-            <Countdown deadline={EARLY_BIRD_DEADLINE_UTC} />
-          </div>
+          <EarlyBirdOnly>
+            <div className="mt-8 flex flex-col items-center gap-3 lg:items-start">
+              <span className="text-xs font-semibold uppercase tracking-wide text-espresso/60">
+                ⏳ La oferta Early Bird termina en
+              </span>
+              <Countdown deadline={EARLY_BIRD_DEADLINE_UTC} />
+            </div>
+          </EarlyBirdOnly>
         </div>
 
         {(hasSocialProof || hasCoachPhoto) && (

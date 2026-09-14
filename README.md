@@ -93,8 +93,8 @@ dentro de `.env.local` y reinicia `npm run dev`.
 
 El precio nunca se confía desde el cliente. `lib/pricing.ts` calcula en
 el servidor si aplica el precio Early Bird (47€) o el precio Regular
-(57€) comparando la hora actual con el corte fijado el 16 de septiembre
-de 2026 a las 00:00 CET (`2026-09-15T22:00:00Z` en UTC, ya que España
+(57€) comparando la hora actual con el corte fijado el 15 de septiembre
+de 2026 a las 00:00 CEST (`2026-09-14T22:00:00Z` en UTC, ya que España
 está en horario de verano —CEST, UTC+2— en esa fecha). Tanto el
 countdown de la landing como `app/api/checkout/route.ts` usan esta misma
 constante para no desincronizarse.
