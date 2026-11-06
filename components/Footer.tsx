@@ -1,7 +1,15 @@
 import Image from "next/image";
 import { publicImageExists } from "@/lib/publicImage";
 
-export default function Footer() {
+export default function Footer({
+  nombre = "La Mujer Que Lo Consigue",
+  fechas = "2-4 de octubre de 2026",
+  grabaciones = "durante 7 días tras cada sesión en directo",
+}: {
+  nombre?: string;
+  fechas?: string;
+  grabaciones?: string;
+} = {}) {
   const hasAmbientPhoto = publicImageExists("images/footer-ambient.jpg");
 
   return (
@@ -22,17 +30,14 @@ export default function Footer() {
 
       <div className="relative mx-auto max-w-3xl text-center">
         <p className="font-serif text-lg font-semibold text-cream">
-          La Mujer Que Lo Consigue
+          {nombre}
         </p>
-        <p className="mt-2 text-sm">
-          Retiro virtual · 2-4 de octubre de 2026
-        </p>
+        <p className="mt-2 text-sm">Retiro virtual · {fechas}</p>
         <p className="mx-auto mt-4 max-w-xl text-[11px] leading-relaxed text-cream/50">
           Al inscribirte aceptas nuestros términos y condiciones y política
           de privacidad. Este programa no sustituye tratamiento psicológico
           o médico profesional. Plazas limitadas. El acceso a las
-          grabaciones estará disponible durante 7 días tras cada sesión en
-          directo.
+          grabaciones estará disponible {grabaciones}.
         </p>
         <p className="mt-4 text-[11px] text-cream/40">
           © {new Date().getFullYear()} Coaching con Paty. Todos los derechos

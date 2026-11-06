@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getStripe } from "@/lib/stripe";
+import { RETIRO_ELIGE } from "@/lib/events";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +12,14 @@ export default async function SuccessPage({
   const sessionId = searchParams.session_id;
 
   let error: string | null = null;
+  let productId: string | undefined;
 
   if (!sessionId) {
     error = "No se ha encontrado la información de tu pago.";
   } else {
     try {
       const session = await getStripe().checkout.sessions.retrieve(sessionId);
+      productId = session.metadata?.product;
       if (session.payment_status !== "paid") {
         error = "Tu pago aún no se ha confirmado. Si crees que es un error, contáctanos.";
       }
@@ -42,6 +45,15 @@ export default async function SuccessPage({
             <h1 className="mt-4 font-serif text-2xl font-semibold text-espresso sm:text-3xl">
               ¡Tu plaza está reservada!
             </h1>
+            {productId === RETIRO_ELIGE.productId ? (
+            <p className="mt-3 text-espresso/80">
+              ¡Bienvenida a La Mujer Que Se Elige! Nos vemos del 29 al 31
+              de enero de 2027 por Zoom. Te llegará un email con la
+              confirmación de tu pago y te añadiremos al grupo de WhatsApp
+              del retiro, donde compartiremos las novedades y los enlaces de
+              Zoom.
+            </p>
+            ) : (
             <p className="mt-3 text-espresso/80">
               ¡Bienvenida! Nos vemos del 2 al 4 de Octubre para transformar
               tu vida. Únete a nuestra comunidad de WhatsApp{" "}
@@ -55,6 +67,7 @@ export default async function SuccessPage({
               </a>{" "}
               y pronto recibirás más información.
             </p>
+            )}
             <p className="mt-4 text-sm text-espresso/70">
               En breve recibirás un email de confirmación. Si no lo ves,
               revisa también tu carpeta de spam.
@@ -62,7 +75,10 @@ export default async function SuccessPage({
           </>
         )}
 
-        <Link href="/" className="btn-secondary mt-8 inline-flex">
+        <Link
+          href={productId === RETIRO_ELIGE.productId ? RETIRO_ELIGE.path : "/"}
+          className="btn-secondary mt-8 inline-flex"
+        >
           Volver a la página principal
         </Link>
       </div>

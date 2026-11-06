@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-import { PRODUCT_ID } from "@/lib/pricing";
+import { getRetiroByProductId, type RetiroConfig } from "@/lib/events";
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
     // La misma cuenta de Stripe cobra otros productos/servicios: sin
     // esta comprobación, cualquier compra ajena al retiro también
     // dispararía la sincronización con esta lista de Brevo.
-    if (metadata.product !== PRODUCT_ID) {
+    const retiro = getRetiroByProductId(metadata.product);
+    if (!retiro) {
       console.log("[webhook] Sesión de otro producto ignorada:", {
         session_id: session.id,
         product: metadata.product,
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
 
     // TODO: aquí se conectará el envío de email de confirmación y WhatsApp.
     console.log("[webhook] Inscripción completada:", {
+      retiro: retiro.productId,
       nombre: metadata.nombre,
       email,
       whatsapp: metadata.whatsapp,
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
       session_id: session.id,
     });
 
-    await syncBrevoContact(email, metadata);
+    await syncBrevoContact(email, metadata, retiro);
   }
 
   return NextResponse.json({ received: true });
@@ -76,7 +78,8 @@ export async function POST(request: NextRequest) {
 
 async function syncBrevoContact(
   email: string | null | undefined,
-  metadata: Stripe.Metadata
+  metadata: Stripe.Metadata,
+  retiro: RetiroConfig
 ) {
   if (!email) {
     console.error("[webhook->brevo] No hay email en la sesión, se omite la sincronización.");
@@ -87,6 +90,18 @@ async function syncBrevoContact(
   if (!apiKey) {
     console.error("[webhook->brevo] Falta BREVO_API_KEY, se omite la sincronización.");
     return;
+  }
+
+  // Cada retiro tiene su propia lista. Si la de este retiro aún no está
+  // configurada, el contacto se crea igualmente (sin lista) para no
+  // perder los datos, y se avisa en el log para añadirlo después.
+  const listId = Number(process.env[retiro.brevoListEnv]);
+  const listIds = Number.isInteger(listId) && listId > 0 ? [listId] : [];
+  if (listIds.length === 0) {
+    console.error(
+      `[webhook->brevo] Falta ${retiro.brevoListEnv}: el contacto se crea sin lista.`,
+      { email, retiro: retiro.productId }
+    );
   }
 
   // Todo el que paga entra en la lista, haya marcado el checkbox o no;
@@ -103,7 +118,7 @@ async function syncBrevoContact(
       CONSENTIMIENTO_MARKETING: metadata.marketing_consent === "true",
     },
     updateEnabled: true,
-    listIds: [Number(process.env.BREVO_LIST_ID_MARKETING)],
+    listIds,
   };
 
   try {

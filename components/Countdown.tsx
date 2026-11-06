@@ -21,10 +21,12 @@ function getTimeLeft(deadline: string): TimeLeft | null {
   };
 }
 
-function Unit({ value, label }: { value: number; label: string }) {
+const DEFAULT_BOX = "bg-espresso text-cream";
+
+function Unit({ value, label, box = DEFAULT_BOX }: { value: number; label: string; box?: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-espresso text-base font-bold text-cream sm:h-14 sm:w-14 sm:text-xl">
+      <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-base font-bold sm:h-14 sm:w-14 sm:text-xl ${box}`}>
         {String(value).padStart(2, "0")}
       </div>
       <span className="mt-1 text-[9px] uppercase tracking-wide text-espresso/70 sm:text-xs">
@@ -37,9 +39,12 @@ function Unit({ value, label }: { value: number; label: string }) {
 export default function Countdown({
   deadline,
   expiredMessage = "El precio early bird ha finalizado.",
+  boxClassName,
 }: {
   deadline: string;
   expiredMessage?: string;
+  /** Clases de color de cada casilla (por defecto, fondo espresso). */
+  boxClassName?: string;
 }) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -65,13 +70,13 @@ export default function Countdown({
 
   return (
     <div className="flex items-center justify-center gap-1.5 sm:gap-2" role="timer">
-      <Unit value={timeLeft.days} label="días" />
+      <Unit value={timeLeft.days} label="días" box={boxClassName} />
       <span className="pb-4 text-base font-bold text-espresso/40">:</span>
-      <Unit value={timeLeft.hours} label="horas" />
+      <Unit value={timeLeft.hours} label="horas" box={boxClassName} />
       <span className="pb-4 text-base font-bold text-espresso/40">:</span>
-      <Unit value={timeLeft.minutes} label="min" />
+      <Unit value={timeLeft.minutes} label="min" box={boxClassName} />
       <span className="pb-4 text-base font-bold text-espresso/40">:</span>
-      <Unit value={timeLeft.seconds} label="seg" />
+      <Unit value={timeLeft.seconds} label="seg" box={boxClassName} />
     </div>
   );
 }

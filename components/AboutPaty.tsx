@@ -20,7 +20,13 @@ const SOCIALS = [
   },
 ];
 
-export default function AboutPaty() {
+export default function AboutPaty({
+  cierre = "Mi trabajo no va de darte más teoría. Va de ayudarte a ver qué te frena y cómo empezar a convertirte en la mujer que sí lo consigue.",
+  className = "bg-sand-100",
+}: {
+  cierre?: string;
+  className?: string;
+} = {}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -31,7 +37,7 @@ export default function AboutPaty() {
   };
 
   return (
-    <section className="bg-sand-100 px-4 py-16 sm:px-6 sm:py-24">
+    <section className={`${className} px-4 py-16 sm:px-6 sm:py-24`}>
       <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
         <div
           className={`mx-auto transition-all duration-500 ease-in-out lg:mx-0 ${
@@ -99,11 +105,7 @@ export default function AboutPaty() {
               conformarse y empezar a sostener el amor, la abundancia y la
               vida que desean.
             </p>
-            <p className="font-medium text-espresso">
-              Mi trabajo no va de darte más teoría. Va de ayudarte a ver qué
-              te frena y cómo empezar a convertirte en la mujer que sí lo
-              consigue.
-            </p>
+            <p className="font-medium text-espresso">{cierre}</p>
           </div>
 
           <div className="mt-6 flex flex-wrap justify-center gap-2 lg:justify-start">

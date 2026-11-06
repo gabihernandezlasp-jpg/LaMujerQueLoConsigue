@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-import { getPriceCents, getPriceTier, getPriceLabel, PRODUCT_ID } from "@/lib/pricing";
+import { getPriceLabel } from "@/lib/pricing";
+import {
+  RETIRO_CONSIGUE,
+  getPriceCentsFor,
+  getRetiroByProductId,
+  getTierFor,
+  ventasCerradas,
+} from "@/lib/events";
 import type { RegistrationPayload } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
@@ -10,6 +17,20 @@ export async function POST(request: NextRequest) {
   if (!nombre || !email || !whatsapp || !deseo || !expectativa) {
     return NextResponse.json(
       { error: "Faltan campos obligatorios." },
+      { status: 400 }
+    );
+  }
+
+  // Sin `retiro` (formulario antiguo) se mantiene el retiro de octubre 2026.
+  const retiro = payload.retiro
+    ? getRetiroByProductId(payload.retiro)
+    : RETIRO_CONSIGUE;
+  if (!retiro) {
+    return NextResponse.json({ error: "Retiro desconocido." }, { status: 400 });
+  }
+  if (ventasCerradas(retiro)) {
+    return NextResponse.json(
+      { error: "Las inscripciones para este retiro ya están cerradas." },
       { status: 400 }
     );
   }
@@ -24,9 +45,10 @@ export async function POST(request: NextRequest) {
 
   // El precio se calcula siempre en el servidor: nunca confiamos en lo
   // que pueda enviar el cliente.
-  const tier = getPriceTier();
-  const amountCents = getPriceCents();
+  const tier = getTierFor(retiro);
+  const amountCents = getPriceCentsFor(retiro);
   const label = getPriceLabel(tier);
+  const productName = `${retiro.nombre} — Entrada ${label}`;
 
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
@@ -39,15 +61,14 @@ export async function POST(request: NextRequest) {
           currency: "eur",
           unit_amount: amountCents,
           product_data: {
-            name: `La Mujer Que Lo Consigue — Entrada ${label}`,
-            description:
-              "Retiro virtual de 3 días, 2-4 de octubre de 2026.",
+            name: productName,
+            description: retiro.stripeDescripcion,
           },
         },
       },
     ],
     metadata: {
-      product: PRODUCT_ID,
+      product: retiro.productId,
       nombre,
       whatsapp,
       deseo,
@@ -58,12 +79,12 @@ export async function POST(request: NextRequest) {
     invoice_creation: {
       enabled: true,
       invoice_data: {
-        description: `La Mujer Que Lo Consigue — Entrada ${label}`,
-        metadata: { product: PRODUCT_ID },
+        description: productName,
+        metadata: { product: retiro.productId },
       },
     },
     success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl}/#inscripcion`,
+    cancel_url: `${siteUrl}${retiro.path}#inscripcion`,
   });
 
   return NextResponse.json({ url: session.url });

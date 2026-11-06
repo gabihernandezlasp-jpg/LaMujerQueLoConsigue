@@ -1,38 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  EARLY_BIRD_PRICE_CENTS,
-  REGULAR_PRICE_CENTS,
-  formatPriceEuros,
-  getPriceTier,
-  type PriceTier,
-} from "@/lib/pricing";
+import { formatPriceEuros, type PriceTier } from "@/lib/pricing";
+import { RETIRO_CONSIGUE, getTierFor, type RetiroConfig } from "@/lib/events";
 
-export function usePriceTier(): PriceTier | null {
+type PriceConfig = Pick<
+  RetiroConfig,
+  "earlyBirdDeadlineUtc" | "earlyBirdCents" | "regularCents"
+>;
+
+// Por defecto, precios del retiro de octubre 2026 (la página principal).
+export function usePriceTier(retiro: PriceConfig = RETIRO_CONSIGUE): PriceTier | null {
   const [tier, setTier] = useState<PriceTier | null>(null);
+  const deadline = retiro.earlyBirdDeadlineUtc;
 
   useEffect(() => {
-    setTier(getPriceTier());
-  }, []);
+    setTier(getTierFor({ earlyBirdDeadlineUtc: deadline }));
+  }, [deadline]);
 
   return tier;
 }
 
-export function CurrentPrice() {
-  const tier = usePriceTier();
+export function CurrentPrice({ retiro = RETIRO_CONSIGUE }: { retiro?: PriceConfig }) {
+  const tier = usePriceTier(retiro);
   if (!tier) return null;
   return (
     <>
       {formatPriceEuros(
-        tier === "early_bird" ? EARLY_BIRD_PRICE_CENTS : REGULAR_PRICE_CENTS
+        tier === "early_bird" ? retiro.earlyBirdCents : retiro.regularCents
       )}
     </>
   );
 }
 
-export function EarlyBirdOnly({ children }: { children: React.ReactNode }) {
-  const tier = usePriceTier();
+export function EarlyBirdOnly({
+  children,
+  retiro = RETIRO_CONSIGUE,
+}: {
+  children: React.ReactNode;
+  retiro?: PriceConfig;
+}) {
+  const tier = usePriceTier(retiro);
   if (tier !== "early_bird") return null;
   return <>{children}</>;
 }

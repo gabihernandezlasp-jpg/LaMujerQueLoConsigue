@@ -2,13 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Paleta de marca (canales RGB). La original es la del retiro de octubre. */
+:root {
+  --c-cream-50: 255 253 251;
+  --c-cream-100: 250 243 234;
+  --c-cream-200: 243 231 214;
+  --c-sand-100: 241 230 216;
+  --c-sand-300: 232 217 197;
+  --c-sand-500: 203 182 153;
+  --c-espresso-400: 92 73 60;
+  --c-espresso-600: 58 46 39;
+  --c-espresso-800: 37 28 23;
+  --c-terracotta-50: 251 238 232;
+  --c-terracotta-100: 244 216 203;
+  --c-terracotta-400: 201 118 82;
+  --c-terracotta-500: 187 95 61;
+  --c-terracotta-600: 158 76 47;
+  --c-terracotta-700: 126 60 37;
+  --c-gold-300: 231 197 146;
+  --c-gold-500: 217 165 102;
+  --c-gold-700: 184 131 74;
+}
+
+/* Invierno (La mujer que se elige): misma estructura de marca, en frío.
+   cream → nieve, sand → escarcha malva, espresso → ciruela profunda,
+   gold → dorado champán. El terracota de los botones se mantiene el de
+   la marca. */
+.theme-invierno {
+  --c-cream-50: 255 255 255;
+  --c-cream-100: 248 246 246;
+  --c-cream-200: 236 232 234;
+  --c-sand-100: 236 233 238;
+  --c-sand-300: 220 214 224;
+  --c-sand-500: 182 172 190;
+  --c-espresso-400: 76 60 80;
+  --c-espresso-600: 47 36 52;
+  --c-espresso-800: 30 22 34;
+  --c-gold-300: 226 207 166;
+  --c-gold-500: 201 168 106;
+  --c-gold-700: 163 133 74;
+  background-color: rgb(var(--c-cream-100));
+  color: rgb(var(--c-espresso-600));
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #faf3ea;
-  color: #3a2e27;
+  background-color: rgb(var(--c-cream-100));
+  color: rgb(var(--c-espresso-600));
 }
 
 @layer components {
