@@ -6,6 +6,7 @@ import { DESEO_OPCIONES, type RegistrationPayload } from "@/lib/types";
 
 type FormState = {
   nombre: string;
+  apellido: string;
   email: string;
   countryCode: string;
   whatsapp: string;
@@ -19,6 +20,7 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 
 const INITIAL_STATE: FormState = {
   nombre: "",
+  apellido: "",
   email: "",
   countryCode: "",
   whatsapp: "",
@@ -89,7 +91,8 @@ class CheckoutError extends Error {}
 function validate(values: FormState): FormErrors {
   const errors: FormErrors = {};
 
-  if (!values.nombre.trim()) errors.nombre = "Escribe tu nombre y apellido.";
+  if (!values.nombre.trim()) errors.nombre = "Escribe tu nombre.";
+  if (!values.apellido.trim()) errors.apellido = "Escribe tu apellido.";
 
   if (!values.email.trim()) {
     errors.email = "Escribe tu email.";
@@ -171,7 +174,8 @@ export default function RegistrationForm({
       values.deseoOpcion === "Otro" ? values.deseoOtro.trim() : values.deseoOpcion;
 
     const payload: RegistrationPayload = {
-      nombre: values.nombre,
+      // El backend (Stripe, Brevo NOMBRE) sigue recibiendo el nombre completo en un solo campo.
+      nombre: `${values.nombre.trim()} ${values.apellido.trim()}`,
       email: values.email,
       whatsapp: `${COUNTRY_CODES.find((c) => c.iso === values.countryCode)?.code ?? ""}${values.whatsapp.replace(/[^\d]/g, "")}`,
       deseo,
@@ -219,19 +223,37 @@ export default function RegistrationForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-      <div>
-        <label htmlFor={`${idPrefix}nombre`} className="mb-1 block text-sm font-medium text-espresso">
-          Nombre y apellido *
-        </label>
-        <input
-          id={`${idPrefix}nombre`}
-          type="text"
-          required
-          className="input-field"
-          value={values.nombre}
-          onChange={(e) => handleChange("nombre", e.target.value)}
-        />
-        {errors.nombre && <p className="mt-1 text-xs text-terracotta-700">{errors.nombre}</p>}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="min-w-0">
+          <label htmlFor={`${idPrefix}nombre`} className="mb-1 block text-sm font-medium text-espresso">
+            Nombre *
+          </label>
+          <input
+            id={`${idPrefix}nombre`}
+            type="text"
+            required
+            autoComplete="given-name"
+            className="input-field"
+            value={values.nombre}
+            onChange={(e) => handleChange("nombre", e.target.value)}
+          />
+          {errors.nombre && <p className="mt-1 text-xs text-terracotta-700">{errors.nombre}</p>}
+        </div>
+        <div className="min-w-0">
+          <label htmlFor={`${idPrefix}apellido`} className="mb-1 block text-sm font-medium text-espresso">
+            Apellido *
+          </label>
+          <input
+            id={`${idPrefix}apellido`}
+            type="text"
+            required
+            autoComplete="family-name"
+            className="input-field"
+            value={values.apellido}
+            onChange={(e) => handleChange("apellido", e.target.value)}
+          />
+          {errors.apellido && <p className="mt-1 text-xs text-terracotta-700">{errors.apellido}</p>}
+        </div>
       </div>
 
       <div>
