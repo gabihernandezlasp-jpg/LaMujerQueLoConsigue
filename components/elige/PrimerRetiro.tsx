@@ -1,40 +1,34 @@
-import fs from "node:fs";
-import path from "node:path";
+import Image from "next/image";
 import { publicImageExists } from "@/lib/publicImage";
 import Pendiente from "./Pendiente";
 
 /**
- * "Lo que dicen ellas" + tráiler del primer retiro (octubre 2026).
- *
- * Para rellenarla basta con dejar los archivos en /public:
- *  - Tráiler: public/videos/primer-retiro.mp4 (y opcional public/images/primer-retiro-poster.jpg)
- *  - Mensajes: capturas en public/images/primer-retiro/ (jpg, png o webp), por orden alfabético
- * Sin archivos, la sección no muestra nada en producción.
+ * "Lo que dicen ellas" + vídeo del primer retiro (octubre 2026).
+ *  - Vídeo: public/videos/primer-retiro.mp4 (y opcional public/images/primer-retiro-poster.jpg)
+ *  - Mensajes: capturas anonimizadas (sin nombres, fotos ni teléfonos) en
+ *    public/images/primer-retiro/, mostradas en cinta lateral como en la home.
  */
-const FEEDBACK_DIR = path.join(process.cwd(), "public", "images", "primer-retiro");
-
-function getFeedbackImages(): string[] {
-  try {
-    return fs
-      .readdirSync(FEEDBACK_DIR)
-      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
-      .sort()
-      .map((f) => `/images/primer-retiro/${f}`);
-  } catch {
-    return [];
-  }
-}
+const FEEDBACK = [
+  { src: "/images/primer-retiro/feedback-2.jpg", width: 985, height: 760 },
+  { src: "/images/primer-retiro/feedback-4.jpg", width: 980, height: 718 },
+  { src: "/images/primer-retiro/feedback-7.png", width: 526, height: 274 },
+  { src: "/images/primer-retiro/feedback-3.jpg", width: 1031, height: 488 },
+  { src: "/images/primer-retiro/feedback-1.jpg", width: 920, height: 1515 },
+  { src: "/images/primer-retiro/feedback-6.png", width: 522, height: 577 },
+].filter((f) => publicImageExists(f.src.slice(1)));
 
 export default function PrimerRetiro() {
   const hasTrailer = publicImageExists("videos/primer-retiro.mp4");
   const hasPoster = publicImageExists("images/primer-retiro-poster.jpg");
-  const feedback = getFeedbackImages();
+  const feedback = FEEDBACK;
+  // Lista duplicada para que la cinta haga un loop continuo sin salto.
+  const marquee = [...feedback, ...feedback];
   const isProd = process.env.NODE_ENV === "production";
 
   if (isProd && !hasTrailer && feedback.length === 0) return null;
 
   return (
-    <section id="ellas" className="bg-espresso px-4 py-16 text-cream sm:px-6 sm:py-24">
+    <section id="ellas" className="overflow-hidden bg-espresso px-4 py-16 text-cream sm:px-6 sm:py-24">
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold-300">
@@ -73,17 +67,25 @@ export default function PrimerRetiro() {
         )}
 
         {feedback.length > 0 ? (
-          <div className="mt-12 columns-1 gap-4 sm:columns-2 lg:columns-3">
-            {feedback.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={src}
-                src={src}
-                alt={`Mensaje de una participante (${i + 1})`}
-                loading="lazy"
-                className="mb-4 w-full break-inside-avoid rounded-2xl shadow-soft"
-              />
-            ))}
+          <div className="relative left-1/2 mt-12 w-screen -translate-x-1/2 overflow-hidden sm:mt-14">
+            <div className="animate-marquee flex w-max items-center gap-5">
+              {marquee.map((t, i) => (
+                <div
+                  key={i}
+                  className="w-64 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm"
+                  aria-hidden={i >= feedback.length}
+                >
+                  <Image
+                    src={t.src}
+                    alt={i < feedback.length ? `Mensaje de una participante del primer retiro (${i + 1})` : ""}
+                    width={t.width}
+                    height={t.height}
+                    sizes="256px"
+                    className="h-auto w-full"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="mx-auto mt-6 max-w-3xl">
