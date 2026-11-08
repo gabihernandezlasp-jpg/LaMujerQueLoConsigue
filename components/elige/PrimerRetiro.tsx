@@ -51,15 +51,16 @@ export default function PrimerRetiro() {
         </div>
 
         {hasTrailer ? (
-          <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-3xl shadow-soft ring-1 ring-cream/10">
+          <div className="mx-auto mt-10 w-full max-w-[22rem] overflow-hidden rounded-3xl shadow-soft ring-1 ring-cream/10">
+            {/* Vídeo vertical (576x1024). Sin póster, #t=0.1 muestra el primer fotograma. */}
             <video
               controls
-              preload="none"
+              preload="metadata"
               playsInline
               poster={hasPoster ? "/images/primer-retiro-poster.jpg" : undefined}
-              className="aspect-video w-full bg-black object-cover"
+              className="aspect-[9/16] w-full bg-black object-cover"
             >
-              <source src="/videos/primer-retiro.mp4" type="video/mp4" />
+              <source src={hasPoster ? "/videos/primer-retiro.mp4" : "/videos/primer-retiro.mp4#t=0.1"} type="video/mp4" />
             </video>
           </div>
         ) : (

@@ -277,9 +277,6 @@ export default function LaMujerQueSeElige() {
           </div>
         </section>
 
-        {/* LO QUE DICEN ELLAS + TRÁILER */}
-        <PrimerRetiro />
-
         {/* FORMULARIO FINAL */}
         <section className="bg-warm-gradient px-4 py-14 sm:px-6 sm:py-20">
           <div className="mx-auto grid max-w-4xl items-center gap-8 lg:grid-cols-[1fr_minmax(0,420px)]">
@@ -295,6 +292,9 @@ export default function LaMujerQueSeElige() {
         </section>
 
         <FAQElige />
+
+        {/* EL RETIRO ANTERIOR: VÍDEO + LO QUE DICEN ELLAS */}
+        <PrimerRetiro />
       </main>
 
       <Footer nombre="La Mujer Que Se Elige" fechas={R.fechasTexto} grabaciones="durante 2 semanas después del retiro" />
