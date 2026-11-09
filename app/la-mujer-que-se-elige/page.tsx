@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import FAQElige from "@/components/elige/FAQElige";
 import PrimerRetiro from "@/components/elige/PrimerRetiro";
 import StickyCTA from "@/components/elige/StickyCTA";
+import TeReconoces from "@/components/elige/TeReconoces";
 import { CurrentPrice, EarlyBirdOnly } from "@/components/PriceTag";
 import { RETIRO_ELIGE as R } from "@/lib/events";
 import { DESEO_OPCIONES_ELIGE } from "@/lib/types";
@@ -157,6 +158,9 @@ export default function LaMujerQueSeElige() {
             <FormCard idPrefix="top-" id="reserva" className="hidden lg:block" />
           </div>
         </section>
+
+        {/* ¿TE RECONOCES? */}
+        <TeReconoces />
 
         {/* PROGRAMA + HORARIO */}
         <section id="programa" className="bg-sand-100 px-4 py-14 sm:px-6 sm:py-20">
